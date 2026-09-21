@@ -4,12 +4,59 @@ import unittest
 
 from datetime import timedelta
 from os import path
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import mock
 
+from click.testing import CliRunner
+
 from beancount.parser import parser
+from beangulp import Ingest
 from beangulp import extract
 from beangulp import similar
 from beangulp import tests
+
+
+class TestExtractCommand(unittest.TestCase):
+    def test_unicode_output(self):
+        # Simulate a non-UTF-8 default for files opened by Click on any platform.
+        def open_cp1252(filename, mode, encoding=None, errors=None):
+            return open(filename, mode, encoding=encoding or "cp1252", errors=errors)
+
+        with TemporaryDirectory() as directory:
+            source = Path(directory) / "source.beans"
+            output = Path(directory) / "output.bean"
+            narration = "Payment from \u7ba1\u8ca1\u4eba"
+            source.write_text(
+                f'2026-01-01 * "{narration}"\n'
+                "  Assets:Tests  1 AUD\n"
+                "  Equity:Tests  -1 AUD\n",
+                encoding="utf-8",
+            )
+            importer = tests.utils.IdentityImporter(
+                "test.Identity", "Assets:Tests", "*source.beans"
+            )
+            ingest = Ingest([importer])
+            runner = CliRunner()
+
+            for options in (["-o", str(output)], [], ["-o", "-"]):
+                with self.subTest(options=options):
+                    with mock.patch("click._compat.open", open_cp1252, create=True):
+                        result = runner.invoke(
+                            ingest.cli,
+                            ["extract", str(source), *options],
+                            catch_exceptions=False,
+                        )
+                    self.assertEqual(result.exit_code, 0)
+                    content = (
+                        output.read_text(encoding="utf-8")
+                        if options == ["-o", str(output)]
+                        else result.stdout
+                    )
+                    entries, errors, _ = parser.parse_string(content)
+                    self.assertFalse(errors)
+                    self.assertEqual(len(entries), 1)
+                    self.assertEqual(entries[0].narration, narration)
 
 
 class TestExtract(unittest.TestCase):
