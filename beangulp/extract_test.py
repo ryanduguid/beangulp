@@ -37,7 +37,8 @@ class TestExtractCommand(unittest.TestCase):
                 "test.Identity", "Assets:Tests", "*source.beans"
             )
             ingest = Ingest([importer])
-            runner = CliRunner()
+            # A cp1252 console cannot encode the narration unless output is UTF-8.
+            runner = CliRunner(charset="cp1252")
 
             for options in (["-o", str(output)], [], ["-o", "-"]):
                 with self.subTest(options=options):
@@ -51,7 +52,7 @@ class TestExtractCommand(unittest.TestCase):
                     content = (
                         output.read_text(encoding="utf-8")
                         if options == ["-o", str(output)]
-                        else result.stdout
+                        else result.stdout_bytes.decode("utf-8")
                     )
                     entries, errors, _ = parser.parse_string(content)
                     self.assertFalse(errors)
