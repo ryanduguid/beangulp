@@ -271,6 +271,47 @@ class TestCSVMeta(unittest.TestCase):
 
 class TestCSVReader(unittest.TestCase):
     @docfile
+    def test_duplicate_named_columns(self, filename):
+        """\
+        Amount,Amount,Amount
+        100,900,500
+        """
+
+        class Reader(CSVReader):
+            amount = Amount("Amount")
+
+        with self.assertRaisesRegex(KeyError, "Column 'Amount' is ambiguous"):
+            list(Reader().read(filename))
+
+    @docfile
+    def test_duplicate_named_columns_with_whitespace(self, filename):
+        """\
+        Amount , Amount
+        100,900
+        """
+
+        class Reader(CSVReader):
+            amount = Amount("Amount")
+
+        with self.assertRaisesRegex(KeyError, "Column 'Amount' is ambiguous"):
+            list(Reader().read(filename))
+
+    @docfile
+    def test_unreferenced_duplicate_names_allow_indexed_columns(self, filename):
+        """\
+        Date,Amount,Amount
+        2026-01-01,100,900
+        """
+
+        class Reader(CSVReader):
+            date = Column("Date")
+            amount = Amount(1)
+
+        (row,) = Reader().read(filename)
+        self.assertEqual(row.date, "2026-01-01")
+        self.assertEqual(row.amount, decimal.Decimal("100"))
+
+    @docfile
     def test_named_columns(self, filename):
         """\
         First, Second
