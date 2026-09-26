@@ -42,7 +42,7 @@ def _resolve(spec, names):
 
     Args:
       spec: Column name or index.
-      names: A dict mapping column names to column indices.
+      names: A dict mapping column names to indices, or None for ambiguous names.
 
     Returns:
       Column index.
@@ -53,6 +53,8 @@ def _resolve(spec, names):
         raise KeyError(f"Column {spec!r} cannot be found in file without column names")
     col = names.get(spec)
     if col is None:
+        if spec in names:
+            raise KeyError(f"Column {spec!r} is ambiguous; select it by index")
         cols = ", ".join(repr(name) for name in names.keys())
         raise KeyError(f"Cannot find column {spec!r} in column names: {cols}")
     return col
@@ -87,7 +89,7 @@ class Column:
         with the column parser function.
 
         Args:
-          names: A dict mapping column names to column indices.
+          names: A dict mapping column names to indices, or None for ambiguous names.
 
         Returns:
           An accessor function.
@@ -308,7 +310,10 @@ class CSVReader(metaclass=CSVMeta):
                 headers = next(reader, None)
                 if headers is None:
                     raise IndexError("The input file does not contain an header line")
-                names = {name.strip(): index for index, name in enumerate(headers)}
+                names = {}
+                for index, name in enumerate(headers):
+                    name = name.strip()
+                    names[name] = None if name in names else index
 
             # Construct a class with attribute accessors for the
             # configured columns that works similarly to a namedtuple.
