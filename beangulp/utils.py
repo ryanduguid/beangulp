@@ -75,7 +75,7 @@ def sha1sum(filepath: str) -> str:
 def is_mimetype(
     filepath: str, check_mimetypes: Union[str, Set[str]], regexp: Optional[bool] = False
 ) -> bool:
-    """Check if a file is of one of many mimetypes."""
+    """Match a file's MIME type literally, or against patterns when regexp is true."""
     if isinstance(check_mimetypes, str):
         check_mimetypes = {
             check_mimetypes,
@@ -85,7 +85,7 @@ def is_mimetype(
         return False
     return (
         any(re.fullmatch(r, mtype) for r in check_mimetypes)
-        if not regexp
+        if regexp
         else (mtype in check_mimetypes)
     )
 

@@ -74,6 +74,23 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(utils.is_mimetype(__file__, {"text/x-python"}))
         self.assertTrue(utils.is_mimetype(__file__, "text/x-python"))
 
+    def test_is_mimetype_matching_modes(self):
+        cases = (
+            ("image/svg+xml", "image/svg+xml", False, True),
+            ("image/svg+xml", {"text/plain", "image/svg+xml"}, False, True),
+            ("text/x-python", "text/x.python", False, False),
+            ("text/x-python", r"text/.*", True, True),
+            ("image/svg+xml", {r"image/.*", r"text/.*"}, True, True),
+            ("image/svg+xml", r"text/.*", True, False),
+            ("text/x-python", "text", True, False),
+            (None, r".*", True, False),
+            (None, "text/plain", False, False),
+        )
+        for mime, pattern, regexp, expected in cases:
+            with self.subTest(mime=mime, pattern=pattern, regexp=regexp):
+                with mock.patch.object(utils.mimetypes, "guess_type", return_value=(mime, None)):
+                    self.assertIs(utils.is_mimetype("statement", pattern, regexp), expected)
+
     def test_search(self):
         self.assertTrue(
             utils.search_file_regexp(__file__, "def test_search", encoding="utf8")
