@@ -17,8 +17,10 @@ Usage:
   Other callable forms, NaN-valued configuration and unsupported state run
   without caching.
 
-  Converters must be deterministic. Globals, imported helpers, external tools,
-  file metadata and other external dependencies are not tracked. Represent their
+  Converters must be deterministic and depend on configuration values, not
+  object identity, shared references or frozenset iteration order.
+  Globals, imported helpers, external tools, file metadata and other external
+  dependencies are not tracked. Represent their
   versions in an immutable default or closure value when they affect results.
   Keep the input and converter configuration stable during each call.
 

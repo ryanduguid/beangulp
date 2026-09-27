@@ -94,7 +94,6 @@ def mimetype(filename):
     return mtype
 
 
-@functools.lru_cache(maxsize=128, typed=True)
 def head(num_bytes=8192, encoding=None):
     """A converter that just reads the first bytes of a file.
 
@@ -107,7 +106,14 @@ def head(num_bytes=8192, encoding=None):
     Returns:
       A converter function.
     """
+    kind = type(num_bytes)
+    if ((kind is int or kind is bool or num_bytes is None)
+            and (encoding is None or type(encoding) is str)):
+        return _cached_head(num_bytes, encoding)
+    return _make_head(num_bytes, encoding)
 
+
+def _make_head(num_bytes, encoding):
     def head_reader(filename):
         with open(filename, "rb") as fd:
             data = fd.read(num_bytes)
@@ -118,6 +124,9 @@ def head(num_bytes=8192, encoding=None):
             return decoder.decode(data, final=False)
 
     return head_reader
+
+
+_cached_head = functools.lru_cache(maxsize=128, typed=True)(_make_head)
 
 
 def contents(filename):
@@ -169,7 +178,9 @@ def cache(func=None, *, key=None):
     """Memoise a file conversion with timestamp or caller-supplied invalidation.
 
     Python function code, immutable defaults, closure values and arguments
-    identify each conversion. Unsupported state runs uncached. External
+    identify each conversion by value. Results must not depend on object
+    identity, shared references or frozenset iteration order.
+    Unsupported state runs uncached. External
     dependencies are not tracked and must remain stable, or be represented by
     an immutable argument. Missing or damaged entries are recomputed even when
     cache=True. Cache storage failures do not discard the converted result.

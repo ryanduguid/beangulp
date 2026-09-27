@@ -98,6 +98,39 @@ class TestFileMemo(unittest.TestCase):
             with self.assertRaises(TypeError):
                 wrapper.head(1.0, encoding="utf-8")
 
+    def test_cache_head_accepts_unhashable_byte_count(self):
+        class Count(int):
+            __hash__ = None
+
+        with mock.patch("builtins.open", mock.mock_open(read_data=b"ab")):
+            self.assertEqual(cache._FileMemo("filepath").head(Count(1), encoding="utf-8"), "a")
+
+    def test_cache_head_preserves_custom_byte_counts(self):
+        class Count(int):
+            def __hash__(self):
+                return 0
+
+            def __eq__(self, other):
+                return type(other) is Count
+
+        wrapper = cache._FileMemo("filepath")
+        with mock.patch("builtins.open", mock.mock_open(read_data=b"ab")):
+            self.assertEqual(wrapper.head(Count(1), encoding="utf-8"), "a")
+            self.assertEqual(wrapper.head(Count(2), encoding="utf-8"), "ab")
+
+    def test_cache_head_preserves_custom_encodings(self):
+        class Encoding(str):
+            def __hash__(self):
+                return 0
+
+            def __eq__(self, other):
+                return type(other) is Encoding
+
+        wrapper = cache._FileMemo("filepath")
+        with mock.patch("builtins.open", mock.mock_open(read_data=b"\xc3\xa9")):
+            self.assertEqual(wrapper.head(encoding=Encoding("latin1")), "\u00c3\u00a9")
+            self.assertEqual(wrapper.head(encoding=Encoding("utf-8")), "\u00e9")
+
 
 class CacheTestCase(unittest.TestCase):
     def setUp(self):
@@ -204,10 +237,14 @@ class CacheTestCase(unittest.TestCase):
 
         @cache.cache(key=Key())
         def converter(filename):
+            CALLS.append(filename)
             with open(filename, encoding="utf-8") as source:
                 return source.read()
 
         self.assertEqual(converter(self.filename), "")
+        self.assertEqual(converter(self.filename), "")
+        self.assertEqual(len(CALLS), 2)
+        self.assertEqual(os.listdir(cache.CACHEDIR), [])
         stamp = os.stat(self.filename).st_mtime_ns + 2_000_000_000
         with open(self.filename, "w", encoding="utf-8") as source:
             source.write("updated")
