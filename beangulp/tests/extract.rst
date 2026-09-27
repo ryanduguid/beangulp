@@ -7,7 +7,7 @@ Setup
   >>> from tempfile import mkdtemp
   >>> import click.testing
   >>> import beangulp
-  >>> from beangulp.tests.utils import Importer, IdentityImporter
+  >>> from beangulp.tests.utils import Importer, IdentityImporter, normalize_paths
 
 An importer to create error conditions:
 
@@ -45,7 +45,7 @@ The basics:
   >>> r = run('extract', '--help')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   Usage: beangulp extract [OPTIONS] [SRC]...
 
 Test with an empty downloads directory:
@@ -53,7 +53,7 @@ Test with an empty downloads directory:
   >>> r = run('extract', downloads)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
 
 Add some documents:
 
@@ -66,7 +66,7 @@ Add some documents:
   >>> r = run('extract', downloads, '-o', output)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
   * .../downloads/zzz.txt
@@ -75,7 +75,7 @@ Check the output file:
 
   >>> with open(output, 'r') as f:
   ...     extracted = f.read()
-  >>> print(extracted)
+  >>> print(normalize_paths(extracted))
   ;; -*- mode: beancount -*-
   <BLANKLINE>
   **** .../downloads/bbb.csv
@@ -90,7 +90,7 @@ Test importer raising an error:
   >>> r = run('extract', downloads, '-o', output)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
   * .../downloads/error.foo ... ERROR
@@ -104,7 +104,7 @@ Check the output file:
 
   >>> with open(output, 'r') as f:
   ...     extracted = f.read()
-  >>> print(extracted)
+  >>> print(normalize_paths(extracted))
   ;; -*- mode: beancount -*-
   <BLANKLINE>
   **** .../downloads/bbb.csv
@@ -129,10 +129,10 @@ Test the identity importer:
   >>> r = run('extract', downloads, '-o', existing)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/one.beans ... OK
 
-  >>> print(pathlib.Path(existing).read_text())
+  >>> print(normalize_paths(pathlib.Path(existing).read_text()))
   ;; -*- mode: beancount -*-
   <BLANKLINE>
   **** .../downloads/one.beans
@@ -145,10 +145,10 @@ Importing again the same file results in entries marked as duplicates:
   >>> r = run('extract', downloads, '-o', output, '-e', existing)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/one.beans ... OK
 
-  >>> print(pathlib.Path(output).read_text())
+  >>> print(normalize_paths(pathlib.Path(output).read_text()))
   ;; -*- mode: beancount -*-
   <BLANKLINE>
   **** .../downloads/one.beans
@@ -164,7 +164,7 @@ Importing again the same file results in entries marked as duplicates:
   >>> r = run('extract', downloads, '-o', output)
   >>> r.exit_code
   0
-  >>> print(pathlib.Path(output).read_text())
+  >>> print(normalize_paths(pathlib.Path(output).read_text()))
   ;; -*- mode: beancount -*-
   <BLANKLINE>
   **** .../downloads/one.beans

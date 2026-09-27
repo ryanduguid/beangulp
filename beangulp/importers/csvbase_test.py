@@ -5,7 +5,7 @@ import unittest
 
 from beancount.core import data
 from beancount.parser import cmptest
-from beancount.utils.test_utils import docfile
+from beangulp.tests.utils import docfile
 from beangulp.importers.csvbase import (
     _chomp,
     Column,

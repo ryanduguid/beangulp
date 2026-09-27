@@ -5,7 +5,7 @@ mimetypes library, augmented with MIME types commonly used in
 financial downloads.  If this does not produce any match it falls back
 to MIME type sniffing using ``python-magic``, if available.
 
-This module is deprecated. Please use ``beancount.mimetypes`` instead.
+This module is deprecated. Please use ``beangulp.mimetypes`` instead.
 
 """
 

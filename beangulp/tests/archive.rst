@@ -6,7 +6,7 @@ Setup
   >>> from tempfile import mkdtemp
   >>> import click.testing
   >>> import beangulp
-  >>> from beangulp.tests.utils import Importer
+  >>> from beangulp.tests.utils import Importer, normalize_paths
 
 An importer to create error conditions:
 
@@ -49,7 +49,7 @@ The basics:
   >>> r = run('archive', '--help')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   Usage: beangulp archive [OPTIONS] [SRC]...
 
 Test with an empty downloads directory:
@@ -57,7 +57,7 @@ Test with an empty downloads directory:
   >>> r = run('archive', downloads)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
 
 Add some documents:
 
@@ -71,7 +71,7 @@ Run in dry-run mode:
   >>> r = run('archive', downloads, '-o', documents, '-n')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     .../documents/Assets/Tests/1970-01-01.bbb.csv
@@ -89,7 +89,7 @@ Now for real:
   >>> r = run('archive', downloads, '-o', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     .../documents/Assets/Tests/1970-01-01.bbb.csv
@@ -108,7 +108,7 @@ Trying to move a documents over an exisiting file:
   >>> r = run('archive', downloads, '-o', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... ERROR
     .../documents/Assets/Tests/1970-01-01.bbb.csv
@@ -131,7 +131,7 @@ Collision in destination filename:
   >>> r = run('archive', downloads, '-o', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     .../documents/Assets/Tests/1970-01-01.bbb.csv
