@@ -6,7 +6,7 @@ Setup
   >>> from tempfile import mkdtemp
   >>> import click.testing
   >>> import beangulp
-  >>> from beangulp.tests.utils import Importer
+  >>> from beangulp.tests.utils import Importer, normalize_paths
 
 An importer to create error conditions:
 
@@ -48,7 +48,7 @@ The basics:
   >>> r = run('identify', '--help')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   Usage: beangulp identify [OPTIONS] [SRC]...
 
 Test with an empty downloads directory:
@@ -56,7 +56,7 @@ Test with an empty downloads directory:
   >>> r = run('identify', downloads)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
 
 Add some documents:
 
@@ -68,7 +68,7 @@ Add some documents:
   >>> r = run('identify', downloads)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     test.ImporterA
@@ -85,7 +85,7 @@ Exception raised in importer code:
   >>> r = run('identify', downloads)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     test.ImporterA
@@ -105,7 +105,7 @@ Two importers matching the same document:
   >>> r = run('identify', downloads)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../downloads/aaa.txt
   * .../downloads/bbb.csv ... OK
     test.ImporterA

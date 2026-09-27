@@ -6,10 +6,11 @@ import textwrap
 import unittest
 import warnings
 
+from pathlib import Path
 from pprint import pformat
 from beancount.core import data
 from beancount.parser import cmptest
-from beancount.utils import test_utils
+from beangulp.tests import utils as test_utils
 from beangulp.importers import csv
 
 
@@ -597,10 +598,10 @@ class TestCSVImporter(cmptest.TestCase):
             [],
         )
         for nl in "\n", "\r\n", "\r":
-            with tempfile.NamedTemporaryFile("w") as temp:
-                temp.write(content.replace("\n", nl))
-                temp.flush()
-                entries = importer.extract(temp.name)
+            with tempfile.TemporaryDirectory() as temp:
+                filename = Path(temp) / "statement.csv"
+                filename.write_bytes(content.replace("\n", nl).encode("utf-8"))
+                entries = importer.extract(str(filename))
                 self.assertEqualEntries(
                     """
                   2020-07-03 * "A"

@@ -3,7 +3,6 @@ __license__ = "GNU GPLv2"
 
 import unittest
 import io
-import tempfile
 import textwrap
 
 from beangulp import csv_utils
@@ -25,8 +24,8 @@ class TestCSVUtils(unittest.TestCase):
         )
 
     def test_csv_dict_reader(self):
-        with tempfile.NamedTemporaryFile("w") as tmpfile:
-            tmpfile.write(
+        with io.StringIO() as infile:
+            infile.write(
                 textwrap.dedent(
                     """\
                 First Name, Last Name, City, Country
@@ -35,32 +34,31 @@ class TestCSVUtils(unittest.TestCase):
                 """
                 )
             )
-            tmpfile.flush()
+            infile.seek(0)
 
-            with open(tmpfile.name) as infile:
-                reader = csv_utils.csv_dict_reader(infile, skipinitialspace=True)
-                self.assertTrue(isinstance(reader, object))
-                self.assertEqual(
-                    [
-                        {
-                            "first_name": "Caroline",
-                            "last_name": "Chang",
-                            "city": "Sydney",
-                            "country": "Australia",
-                        },
-                        {
-                            "first_name": "Martin",
-                            "last_name": "Blais",
-                            "city": "Vancouver",
-                            "country": "Canada",
-                        },
-                    ],
-                    list(reader),
-                )
+            reader = csv_utils.csv_dict_reader(infile, skipinitialspace=True)
+            self.assertTrue(isinstance(reader, object))
+            self.assertEqual(
+                [
+                    {
+                        "first_name": "Caroline",
+                        "last_name": "Chang",
+                        "city": "Sydney",
+                        "country": "Australia",
+                    },
+                    {
+                        "first_name": "Martin",
+                        "last_name": "Blais",
+                        "city": "Vancouver",
+                        "country": "Canada",
+                    },
+                ],
+                list(reader),
+            )
 
     def test_csv_tuple_reader(self):
-        with tempfile.NamedTemporaryFile("w") as tmpfile:
-            tmpfile.write(
+        with io.StringIO() as infile:
+            infile.write(
                 textwrap.dedent(
                     """\
                 First Name, Last Name, City, Country
@@ -69,20 +67,19 @@ class TestCSVUtils(unittest.TestCase):
                 """
                 )
             )
-            tmpfile.flush()
+            infile.seek(0)
 
-            with open(tmpfile.name) as infile:
-                reader = csv_utils.csv_tuple_reader(infile, skipinitialspace=True)
-                self.assertTrue(isinstance(reader, object))
+            reader = csv_utils.csv_tuple_reader(infile, skipinitialspace=True)
+            self.assertTrue(isinstance(reader, object))
 
-                rows = list(reader)
-                first_row = rows[0]
-                self.assertTrue(isinstance(first_row, tuple))
-                self.assertTrue(first_row.first_name)
-                self.assertTrue(first_row.last_name)
-                self.assertTrue(first_row.city)
-                self.assertTrue(first_row.country)
-                self.assertEqual(2, len(rows))
+            rows = list(reader)
+            first_row = rows[0]
+            self.assertTrue(isinstance(first_row, tuple))
+            self.assertTrue(first_row.first_name)
+            self.assertTrue(first_row.last_name)
+            self.assertTrue(first_row.city)
+            self.assertTrue(first_row.country)
+            self.assertEqual(2, len(rows))
 
     def test_csv_split_sections(self):
         rows = csv_utils.as_rows("""\

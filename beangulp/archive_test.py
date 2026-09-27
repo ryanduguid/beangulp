@@ -18,11 +18,11 @@ class TestFilepath(unittest.TestCase):
         importer = mock.MagicMock(wraps=self.importer)
         importer.filename.return_value = "foo.csv"
         filepath = archive.filepath(importer, path.abspath("test.pdf"))
-        self.assertEqual(filepath, "Assets/Tests/1970-01-01.foo.csv")
+        self.assertEqual(filepath, path.join("Assets", "Tests", "1970-01-01.foo.csv"))
 
     def test_filepath_no_filename(self):
         filepath = archive.filepath(self.importer, path.abspath("test.pdf"))
-        self.assertEqual(filepath, "Assets/Tests/1970-01-01.test.pdf")
+        self.assertEqual(filepath, path.join("Assets", "Tests", "1970-01-01.test.pdf"))
 
     def test_filepath_no_date(self):
         importer = mock.MagicMock(wraps=self.importer)
@@ -32,7 +32,7 @@ class TestFilepath(unittest.TestCase):
             return_value=datetime.datetime.fromtimestamp(0, datetime.timezone.utc),
         ):
             filepath = archive.filepath(importer, path.abspath("test.pdf"))
-        self.assertEqual(filepath, "Assets/Tests/1970-01-01.test.pdf")
+        self.assertEqual(filepath, path.join("Assets", "Tests", "1970-01-01.test.pdf"))
 
     def test_filepath_sep_in_name(self):
         importer = mock.MagicMock(wraps=self.importer)

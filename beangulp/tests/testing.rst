@@ -5,7 +5,7 @@ Setup
   >>> from os import mkdir, path, rename, unlink
   >>> from shutil import rmtree
   >>> from tempfile import mkdtemp
-  >>> from beangulp.tests.utils import Importer
+  >>> from beangulp.tests.utils import Importer, normalize_paths
   >>> import click.testing
 
 Import the module under test:
@@ -27,19 +27,19 @@ Tests
 Check the basics:
 
   >>> r = run()
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   Usage: beangulp [OPTIONS] COMMAND [ARGS]...
 
   >>> r = run('test', '--help')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   Usage: beangulp test [OPTIONS] [DOCUMENTS]...
 
   >>> r = run('test')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   <BLANKLINE>
 
 Create a documents directory:
@@ -58,7 +58,7 @@ The test harness should report this file as ignored and report success:
   >>> r = run('test', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.txt  IGNORED
 
 and no expected output file should be generated for it:
@@ -66,7 +66,7 @@ and no expected output file should be generated for it:
   >>> r = run('generate', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.txt  IGNORED
 
   >>> unlink(path.join(documents, 'test.txt'))
@@ -80,7 +80,7 @@ test error:
   >>> r = run('test', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  ERROR
   ExpectedOutputFileNotFound
 
@@ -89,7 +89,7 @@ Generate the expected output file:
   >>> r = run('generate', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  OK
 
 Now the test should succeed:
@@ -97,7 +97,7 @@ Now the test should succeed:
   >>> r = run('test', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  PASSED
 
 Overwriting the expected output file is an error:
@@ -105,7 +105,7 @@ Overwriting the expected output file is an error:
   >>> r = run('generate', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  ERROR
   FileExistsError: .../test.csv.beancount
 
@@ -114,7 +114,7 @@ unless the --force options is specified:
   >>> r = run('generate', documents, '--force')
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  OK
 
 Put back a file that should be ignored and verify that it is:
@@ -124,7 +124,7 @@ Put back a file that should be ignored and verify that it is:
   >>> r = run('test', documents)
   >>> r.exit_code
   0
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  PASSED
   * .../documents/test.txt  IGNORED
 
@@ -139,7 +139,7 @@ Altering the expected output file should result in a test error:
   >>> r = run('test', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.csv  ERROR
   --- imported.beancount
   +++ expected.beancount
@@ -157,7 +157,7 @@ a test error is reported:
   >>> r = run('test', documents)
   >>> r.exit_code
   1
-  >>> print(r.output)
+  >>> print(normalize_paths(r.output))
   * .../documents/test.foo  ERROR
   DocumentNotIdentified
 

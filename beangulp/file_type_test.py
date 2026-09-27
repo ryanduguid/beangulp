@@ -5,6 +5,7 @@ import os
 from os import path
 import unittest
 import warnings
+from unittest import mock
 
 from beangulp import file_type
 
@@ -23,7 +24,7 @@ class TestFileType(unittest.TestCase):
         self.assertIn(mime_type, expected_mime_types)
 
     def test_csv(self):
-        self.check_mime_type("example.csv", ["text/csv", "text/x-comma-separated-values"])
+        self.check_mime_type("example.csv", "text/csv")
 
     def test_xls(self):
         self.check_mime_type(
@@ -66,6 +67,7 @@ class TestFileType(unittest.TestCase):
     def test_txt(self):
         self.check_mime_type("example.txt", "text/plain")
 
+    @unittest.skipIf(not file_type.magic, "python-magic is not installed")
     def test_org(self):
         self.check_mime_type(
             "example.org", ["text/org", "text/plain", "application/vnd.lotus-organizer"]
@@ -92,3 +94,21 @@ class TestFileType(unittest.TestCase):
     @unittest.skipIf(not file_type.magic, "python-magic is not installed")
     def test_bz2(self):
         self.check_mime_type("example.bz2", "application/x-bzip2")
+
+    def test_unknown_without_magic(self):
+        with mock.patch.object(file_type.mimetypes, "guess_type", return_value=(None, None)):
+            with mock.patch.object(file_type, "magic", None):
+                with self.assertWarns(DeprecationWarning):
+                    self.assertIsNone(file_type.guess_file_type("statement.unknown"))
+
+    def test_unknown_with_magic(self):
+        for result in ("text/plain", b"text/plain"):
+            with self.subTest(result=result):
+                with mock.patch.object(file_type.mimetypes, "guess_type", return_value=(None, None)):
+                    with mock.patch.object(file_type, "magic") as magic:
+                        magic.from_file.return_value = result
+                        with self.assertWarns(DeprecationWarning):
+                            self.assertEqual(
+                                file_type.guess_file_type("statement.unknown"), "text/plain"
+                            )
+                        magic.from_file.assert_called_once_with("statement.unknown", mime=True)

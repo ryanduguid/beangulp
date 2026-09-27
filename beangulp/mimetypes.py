@@ -9,6 +9,9 @@ instead of 'import mimetypes'.
 
 from mimetypes import *  # noqa: F403
 
+# Windows file associations can otherwise identify CSV files as Excel documents.
+add_type("text/csv", ".csv", strict=True)  # noqa: F405
+
 # Register some MIME types used in financial downloads.
 _extra_mime_types = [
     ("text/beancount", ".beancount", ".beans"),  # Beancount ledgers.

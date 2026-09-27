@@ -4,7 +4,7 @@ __license__ = "GNU GPLv2"
 import unittest
 import warnings
 
-from beancount.utils import test_utils
+from beangulp.tests import utils as test_utils
 from beangulp.importers import fileonly
 from beangulp import cache
 from beangulp import file_type
