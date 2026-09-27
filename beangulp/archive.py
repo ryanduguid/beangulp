@@ -39,8 +39,8 @@ def filepath(importer: Importer, filepath: str) -> str:
     filename = importer.filename(filepath) or os.path.basename(filepath)
     date = importer.date(filepath) or utils.getmdate(filepath)
 
-    # The returned filename cannot contain the file path separator character.
-    if os.sep in filename:
+    # The returned filename cannot contain either platform path separator.
+    if os.sep in filename or (os.altsep and os.altsep in filename):
         raise Error("The filename contains path separator character.")
 
     if re.match(r"\d\d\d\d-\d\d-\d\d\.", filename):

@@ -36,10 +36,16 @@ class TestFilepath(unittest.TestCase):
 
     def test_filepath_sep_in_name(self):
         importer = mock.MagicMock(wraps=self.importer)
-        importer.filename.return_value = f"dir{os.sep:}name.pdf"
-        with self.assertRaises(exceptions.Error) as ex:
-            archive.filepath(importer, path.abspath("test.pdf"))
-        self.assertRegex(ex.exception.message, r"contains path separator")
+        for separator in filter(None, (os.sep, os.altsep)):
+            for name in (
+                f"dir{separator}name.pdf",
+                f"dir{separator}..{separator}..{separator}name.pdf",
+            ):
+                with self.subTest(name=name):
+                    importer.filename.return_value = name
+                    with self.assertRaises(exceptions.Error) as ex:
+                        archive.filepath(importer, path.abspath("test.pdf"))
+                    self.assertRegex(ex.exception.message, r"contains path separator")
 
     def test_filepath_date_in_name(self):
         importer = mock.MagicMock(wraps=self.importer)
