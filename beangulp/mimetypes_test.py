@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 class TestMimeTypes(unittest.TestCase):
-    def test_csv_overrides_host_mapping(self):
+    def test_financial_types_with_host_mappings(self):
         script = textwrap.dedent('''\
             import mimetypes as stdlib_mimetypes
             import sys
@@ -18,6 +18,9 @@ class TestMimeTypes(unittest.TestCase):
             check.assertNotIn("beangulp", sys.modules)
             stdlib_mimetypes.add_type("application/vnd.ms-excel", ".csv", strict=True)
             stdlib_mimetypes.add_type("application/vnd.intu.qfx", ".qfx", strict=True)
+            stdlib_mimetypes.types_map.pop(".ods", None)
+            stdlib_mimetypes.common_types.pop(".ods", None)
+            check.assertEqual(stdlib_mimetypes.guess_type("statement.ods"), (None, None))
             check.assertEqual(stdlib_mimetypes.guess_type("statement.csv")[0],
                               "application/vnd.ms-excel")
             excel_type = stdlib_mimetypes.guess_type("statement.xls")
@@ -34,6 +37,8 @@ class TestMimeTypes(unittest.TestCase):
                     check.assertEqual(mimetypes.guess_type(filename, strict=strict),
                                       ("text/csv", encoding))
             check.assertEqual(mimetypes.guess_type("statement.xls"), excel_type)
+            check.assertEqual(mimetypes.guess_type("statement.ods"),
+                              ("application/vnd.oasis.opendocument.spreadsheet", None))
             check.assertEqual(mimetypes.guess_type("statement.qfx", strict=False)[0],
                               "application/vnd.intu.qfx")
             check.assertEqual(stdlib_mimetypes.common_types[".qfx"], "application/x-ofx")
