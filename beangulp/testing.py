@@ -47,7 +47,7 @@ def write_expected(
 def write_expected_file(filepath: str, *data, force: bool = False):
     """Writes out the expected file."""
     mode = "w" if force else "x"
-    with open(filepath, mode) as expfile:
+    with open(filepath, mode, encoding="utf-8") as expfile:
         write_expected(expfile, *data)
 
 
@@ -59,7 +59,7 @@ def compare_expected(filepath: str, *data) -> List[str]:
         buffer.seek(0)
         lines_imported = buffer.readlines()
 
-    with open(filepath, "r") as infile:
+    with open(filepath, "r", encoding="utf-8") as infile:
         lines_expected = infile.readlines()
 
     diff = difflib.unified_diff(
