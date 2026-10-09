@@ -1,6 +1,20 @@
 beangulp: Importers Framework for Beancount
 -------------------------------------------
 
+**Fork status**
+
+.. image:: https://app.codacy.com/project/badge/Grade/3ff31fade1914135b89b9f6f8ad13ea2?branch=master
+   :target: https://app.codacy.com/gh/ryanduguid/beangulp/dashboard
+   :alt: Fork code quality
+
+.. image:: https://github.com/ryanduguid/beangulp/actions/workflows/lint.yaml/badge.svg?branch=master
+   :target: https://github.com/ryanduguid/beangulp/actions/workflows/lint.yaml
+   :alt: Fork lint
+
+.. image:: https://github.com/ryanduguid/beangulp/actions/workflows/test.yaml/badge.svg?branch=master
+   :target: https://github.com/ryanduguid/beangulp/actions/workflows/test.yaml
+   :alt: Fork test
+
 ``beangulp`` provides a framework for importing transactions into a
 Beancount ledger from account statements and other documents and for
 managing documents.
