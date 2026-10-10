@@ -69,7 +69,7 @@ def walk(paths: Sequence[str]) -> Iterator[str]:
 def sha1sum(filepath: str) -> str:
     """Compute hash of the file at filepath."""
     with open(filepath, "rb") as fd:
-        return hashlib.sha1(fd.read()).hexdigest()
+        return hashlib.sha1(fd.read(), usedforsecurity=False).hexdigest()
 
 
 def is_mimetype(
