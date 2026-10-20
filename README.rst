@@ -3,15 +3,15 @@ beangulp: Importers Framework for Beancount
 
 **Fork status**
 
-.. image:: https://app.codacy.com/project/badge/Grade/3ff31fade1914135b89b9f6f8ad13ea2?branch=master
+.. image:: https://img.shields.io/codacy/grade/3ff31fade1914135b89b9f6f8ad13ea2/master?style=flat&labelColor=000000
    :target: https://app.codacy.com/gh/ryanduguid/beangulp/dashboard
    :alt: Fork code quality
 
-.. image:: https://github.com/ryanduguid/beangulp/actions/workflows/lint.yaml/badge.svg?branch=master
+.. image:: https://img.shields.io/github/actions/workflow/status/ryanduguid/beangulp/lint.yaml?branch=master&label=lint&style=flat&labelColor=000000
    :target: https://github.com/ryanduguid/beangulp/actions/workflows/lint.yaml
    :alt: Fork lint
 
-.. image:: https://github.com/ryanduguid/beangulp/actions/workflows/test.yaml/badge.svg?branch=master
+.. image:: https://img.shields.io/github/actions/workflow/status/ryanduguid/beangulp/test.yaml?branch=master&label=test&style=flat&labelColor=000000
    :target: https://github.com/ryanduguid/beangulp/actions/workflows/test.yaml
    :alt: Fork test
 
